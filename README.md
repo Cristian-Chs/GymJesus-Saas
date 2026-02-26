@@ -43,31 +43,6 @@ Una aplicación web moderna y profesional diseñada para optimizar la administra
    ```bash
    npm install
    ```
-3. Crear un archivo `.env.local` en la raíz con tus credenciales de Firebase:
-   ```env
-   NEXT_PUBLIC_FIREBASE_API_KEY=tu_api_key
-   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=tu_dominio.firebaseapp.com
-   NEXT_PUBLIC_FIREBASE_PROJECT_ID=tu_proyecto_id
-   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=tu_bucket.firebasestorage.app
-   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=tu_sender_id
-   NEXT_PUBLIC_FIREBASE_APP_ID=tu_app_id
-   NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=tu_measurement_id
-   ```
-
-### Desarrollo
-
-Ejecutar el servidor de desarrollo:
-
-```bash
-npm run dev
-```
-
-### Construcción para Producción
-
-```bash
-npm run build
-npm run start
-```
 
 ## 📄 Licencia
 
