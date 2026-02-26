@@ -1,0 +1,105 @@
+"use client";
+
+import { differenceInDays, format } from "date-fns";
+import { es } from "date-fns/locale";
+
+interface Props {
+  subscriptionEnd: Date;
+}
+
+export default function ExpirationBanner({ subscriptionEnd }: Props) {
+  const today = new Date();
+  const daysLeft = differenceInDays(subscriptionEnd, today);
+  const isExpired = daysLeft < 0;
+  const isUrgent = daysLeft >= 0 && daysLeft < 5;
+
+  return (
+    <div
+      className={`relative overflow-hidden rounded-2xl border p-6 transition-all ${
+        isExpired
+          ? "border-red-500/40 bg-red-950/30"
+          : isUrgent
+            ? "border-amber-500/40 bg-amber-950/30"
+            : "border-brand-lime/20 bg-surface-700"
+      }`}
+    >
+      {/* Glow accent */}
+      <div
+        className={`pointer-events-none absolute -top-20 -right-20 h-40 w-40 rounded-full blur-3xl ${
+          isExpired
+            ? "bg-red-500/20"
+            : isUrgent
+              ? "bg-amber-500/20"
+              : "bg-brand-lime/10"
+        }`}
+      />
+
+      <div className="relative flex items-center justify-between gap-4">
+        <div>
+          <h3 className="text-sm font-medium tracking-wider text-gray-400 uppercase">
+            Suscripción
+          </h3>
+
+          {isExpired ? (
+            <>
+              <p className="mt-1 text-2xl font-bold text-red-400">Expirada</p>
+              <p className="mt-1 text-sm text-red-300/70">
+                Tu suscripción venció el{" "}
+                {format(subscriptionEnd, "d 'de' MMMM, yyyy", { locale: es })}
+              </p>
+            </>
+          ) : isUrgent ? (
+            <>
+              <p className="mt-1 text-2xl font-bold text-amber-400">
+                {daysLeft === 0
+                  ? "¡Vence hoy!"
+                  : `${daysLeft} día${daysLeft !== 1 ? "s" : ""} restante${daysLeft !== 1 ? "s" : ""}`}
+              </p>
+              <p className="mt-1 text-sm text-amber-300/70">
+                Renueva antes del{" "}
+                {format(subscriptionEnd, "d 'de' MMMM", { locale: es })} para no
+                perder acceso.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="mt-1 text-2xl font-bold text-brand-lime">
+                {daysLeft} día{daysLeft !== 1 ? "s" : ""} restante{daysLeft !== 1 ? "s" : ""}
+              </p>
+              <p className="mt-1 text-sm text-gray-400">
+                Próximo pago:{" "}
+                {format(subscriptionEnd, "d 'de' MMMM, yyyy", { locale: es })}
+              </p>
+            </>
+          )}
+        </div>
+
+        {/* Icon */}
+        <div
+          className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl ${
+            isExpired
+              ? "bg-red-500/20 text-red-400"
+              : isUrgent
+                ? "bg-amber-500/20 text-amber-400"
+                : "bg-brand-lime/10 text-brand-lime"
+          }`}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-7 w-7"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
+  );
+}
