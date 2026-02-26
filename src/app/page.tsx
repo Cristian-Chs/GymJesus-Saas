@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function HomePage() {
-  const { userProfile, loading } = useAuth();
+  const { userProfile, authLoading, profileLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (loading) return;
+    // Esperamos a que ambos terminen para decidir la ruta inicial
+    if (authLoading || profileLoading) return;
+    
     if (!userProfile) {
       router.replace("/login");
     } else if (userProfile.role === "admin") {
@@ -17,7 +19,7 @@ export default function HomePage() {
     } else {
       router.replace("/dashboard");
     }
-  }, [userProfile, loading, router]);
+  }, [userProfile, authLoading, profileLoading, router]);
 
   return (
     <div className="flex min-h-screen items-center justify-center">

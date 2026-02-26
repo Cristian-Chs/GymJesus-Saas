@@ -13,7 +13,7 @@ import AdminGymEvents from "@/components/AdminGymEvents";
 import AdminPlanEditor from "@/components/AdminPlanEditor";
 
 export default function AdminDashboard() {
-  const { userProfile, loading } = useAuth();
+  const { userProfile, authLoading, profileLoading } = useAuth();
   const [stats, setStats] = useState({ total: 0, active: 0, pending: 0, verifying: 0 });
 
   useEffect(() => {
@@ -23,7 +23,7 @@ export default function AdminDashboard() {
         .map((d) => ({ uid: d.id, ...d.data() }) as UserProfile)
         .filter((u) => u.role !== "admin");
 
-      // 2. Listen to Pending Payments (Nested to simplify, although separate is fine)
+      // 2. Listen to Pending Payments
       const q = query(collection(db, "payments"), where("status", "==", "pending"));
       const unsubscribePayments = onSnapshot(q, (pSnap) => {
         const verifying = pSnap.size;
@@ -62,7 +62,7 @@ export default function AdminDashboard() {
     }
   };
 
-  if (loading) {
+  if (authLoading || profileLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="h-10 w-10 animate-spin rounded-full border-2 border-brand-lime border-t-transparent" />
@@ -70,7 +70,7 @@ export default function AdminDashboard() {
     );
   }
 
-  if (!userProfile) return null;
+  if (!userProfile || userProfile.role !== "admin") return null;
 
   return (
     <div className="animate-fade-in space-y-8">

@@ -8,9 +8,9 @@ import BcvRate from "@/components/BcvRate";
 import PlanSelector from "@/components/PlanSelector";
 
 export default function ClientDashboard() {
-  const { userProfile, loading } = useAuth();
+  const { userProfile, authLoading, profileLoading } = useAuth();
 
-  if (loading) {
+  if (authLoading || profileLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="h-10 w-10 animate-spin rounded-full border-2 border-brand-lime border-t-transparent" />

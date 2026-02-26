@@ -22,6 +22,8 @@ interface AuthContextType {
   firebaseUser: User | null;
   userProfile: UserProfile | null;
   loading: boolean;
+  authLoading: boolean;
+  profileLoading: boolean;
   signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -30,6 +32,8 @@ const AuthContext = createContext<AuthContextType>({
   firebaseUser: null,
   userProfile: null,
   loading: true,
+  authLoading: true,
+  profileLoading: false,
   signInWithGoogle: async () => {},
   logout: async () => {},
 });
@@ -39,24 +43,28 @@ export const useAuth = () => useContext(AuthContext);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       console.log("onAuthStateChanged:", user ? `Usuario: ${user.email}` : "Sin usuario");
       setFirebaseUser(user);
+      setAuthLoading(false); // Auth is resolved quickly
 
       if (user) {
+        setProfileLoading(true);
         try {
           const userRef = doc(db, "users", user.uid);
           const snap = await getDoc(userRef);
 
           if (snap.exists()) {
             console.log("Perfil encontrado.");
-            setUserProfile({ uid: user.uid, ...snap.data() } as UserProfile);
+            const data = snap.data();
+            setUserProfile({ uid: user.uid, ...data } as UserProfile);
             
             // Set cookie for middleware
-            const role = snap.data().role || "client";
+            const role = data.role || "client";
             document.cookie = `session=${role};path=/;max-age=${60 * 60 * 24 * 30};SameSite=Lax`;
           } else {
             console.log("Creando perfil nuevo...");
@@ -77,15 +85,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch (error: any) {
           console.error("Error en Firestore:", error);
           if (error.code === "permission-denied") {
-            alert("Firestore Error: Permisos denegados. Revisa la pestaña 'Reglas' en Firebase.");
+            // alert("Firestore Error: Permisos denegados. Revisa la pestaña 'Reglas' en Firebase.");
           }
+        } finally {
+          setProfileLoading(false);
         }
       } else {
         setUserProfile(null);
+        setProfileLoading(false);
         document.cookie = "session=;path=/;max-age=0;SameSite=Lax";
       }
-
-      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -93,12 +102,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = async () => {
     try {
-      setLoading(true);
+      setAuthLoading(true);
       await signInWithPopup(auth, googleProvider);
     } catch (error: any) {
       console.error("Error al iniciar sesión:", error);
       alert("Error: " + error.message);
-      setLoading(false);
+      setAuthLoading(false);
     }
   };
 
@@ -109,9 +118,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setFirebaseUser(null);
   };
 
+  // Para compatibilidad hacia atrás, 'loading' refleja el estado inicial crítico
+  const loading = authLoading;
+
   return (
     <AuthContext.Provider
-      value={{ firebaseUser, userProfile, loading, signInWithGoogle, logout }}
+      value={{ 
+        firebaseUser, 
+        userProfile, 
+        loading, 
+        authLoading, 
+        profileLoading, 
+        signInWithGoogle, 
+        logout 
+      }}
     >
       {children}
     </AuthContext.Provider>
