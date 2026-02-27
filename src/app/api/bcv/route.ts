@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getBcvRate } from '@/lib/bcv';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const rate = await getBcvRate();
   

@@ -45,29 +45,19 @@ export async function getBcvRate() {
     }
 
     if (html) {
-      // Pattern 1: Specific class from user's script
-      const rateMatch = html.match(/<div[^>]*class=['"]col-sm-6 col-xs-6 centrado['"][^>]*>[\s\S]*?<strong>\s*([\d,.]+)\s*<\/strong>/);
-      if (rateMatch && rateMatch[1]) {
-        console.log("BCV Rate found with Pattern 1:", rateMatch[1]);
-        return rateMatch[1].trim().replace(',', '.');
-      }
-
-      // Pattern 2: Search for "USD" label followed by a value in a strong tag
+      // Pattern 1: Search for "USD" label specifically followed by a value in a strong tag
+      // This is the most reliable pattern for the dollar rate
       const usdMatch = html.match(/id=['"]dolar['"][\s\S]*?<strong>\s*([\d,.]+)\s*<\/strong>/);
       if (usdMatch && usdMatch[1]) {
-        console.log("BCV Rate found with Pattern 2 (USD ID):", usdMatch[1]);
+        console.log("BCV Rate found with Pattern 1 (USD ID):", usdMatch[1]);
         return usdMatch[1].trim().replace(',', '.');
       }
 
-      // Pattern 3: Any strong tag containing something that looks like a BS rate (often > 20)
-      const strongRegex = /<strong>\s*([\d,.]+)\s*<\/strong>/g;
-      let match;
-      while ((match = strongRegex.exec(html)) !== null) {
-        const val = match[1].replace(',', '.');
-        if (parseFloat(val) > 20) {
-          console.log("BCV Rate found with Pattern 3 (Generic strong):", val);
-          return val;
-        }
+      // Pattern 2: Specific class from user's script (backup)
+      const rateMatch = html.match(/<div[^>]*class=['"]col-sm-6 col-xs-6 centrado['"][^>]*>[\s\S]*?<strong>\s*([\d,.]+)\s*<\/strong>/);
+      if (rateMatch && rateMatch[1]) {
+        console.log("BCV Rate found with Pattern 2 (Legacy Centrado):", rateMatch[1]);
+        return rateMatch[1].trim().replace(',', '.');
       }
     }
 
