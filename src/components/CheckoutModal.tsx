@@ -68,7 +68,7 @@ export default function CheckoutModal({ isOpen, onClose, tier, userProfile }: Pr
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-surface-900/90 backdrop-blur-sm animate-fade-in">
       <div className="w-full max-w-md rounded-3xl border border-white/5 bg-surface-800 p-8 shadow-2xl relative overflow-hidden">
         {/* Glow effect */}
-        <div className="absolute -top-24 -right-24 h-48 w-48 bg-brand-lime/10 blur-[100px]" />
+        <div className="absolute -top-24 -right-24 h-48 w-48 bg-brand-primary/10 blur-[100px]" />
         
         <div className="relative z-10">
           <div className="mb-6 flex items-center justify-between">
@@ -84,7 +84,7 @@ export default function CheckoutModal({ isOpen, onClose, tier, userProfile }: Pr
           <div className="mb-6 rounded-2xl bg-surface-700/50 p-5 border border-white/5">
             <div className="flex justify-between items-center mb-3">
               <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Plan Seleccionado</span>
-              <span className="rounded-full bg-brand-lime/10 px-3 py-1 text-[10px] font-bold text-brand-lime uppercase">
+              <span className="rounded-full bg-brand-primary/10 px-3 py-1 text-[10px] font-bold text-brand-primary uppercase">
                 {tier.name}
               </span>
             </div>
@@ -92,7 +92,7 @@ export default function CheckoutModal({ isOpen, onClose, tier, userProfile }: Pr
               <span className="text-sm text-gray-400">Total a pagar</span>
               <div className="text-right">
                 <p className="text-3xl font-black text-white">${tier.price}</p>
-                <p className="text-xs text-brand-lime font-bold">≈ Bs. {totalPriceBs}</p>
+                <p className="text-xs text-brand-primary font-bold">≈ Bs. {totalPriceBs}</p>
               </div>
             </div>
           </div>
@@ -121,8 +121,8 @@ export default function CheckoutModal({ isOpen, onClose, tier, userProfile }: Pr
             {method === "pagomovil" ? (
               <div className="space-y-4 animate-slide-up">
                 {/* Merchant Data */}
-                <div className="rounded-xl border border-brand-lime/20 bg-brand-lime/5 p-4">
-                  <p className="mb-2 text-[10px] font-black uppercase text-brand-lime tracking-widest">Datos del Comercio</p>
+                <div className="rounded-xl border border-brand-primary/20 bg-brand-primary/5 p-4">
+                  <p className="mb-2 text-[10px] font-black uppercase text-brand-primary tracking-widest">Datos del Comercio</p>
                   <div className="space-y-1 text-sm">
                     <p className="flex justify-between"><span className="text-gray-500">Banco:</span> <span className="text-gray-200 font-medium">Banesco</span></p>
                     <p className="flex justify-between"><span className="text-gray-500">Teléfono:</span> <span className="text-gray-200 font-medium">04246188448</span></p>
@@ -137,7 +137,7 @@ export default function CheckoutModal({ isOpen, onClose, tier, userProfile }: Pr
                     placeholder="0414..."
                     value={formData.phone}
                     onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                    className="w-full rounded-xl bg-surface-900 border border-white/5 p-3 text-sm text-gray-100 outline-none focus:border-brand-lime/50 transition-colors" 
+                    className="w-full rounded-xl bg-surface-900 border border-white/5 p-3 text-sm text-gray-100 outline-none focus:border-brand-primary/50 transition-colors" 
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -147,7 +147,7 @@ export default function CheckoutModal({ isOpen, onClose, tier, userProfile }: Pr
                     placeholder="1234"
                     value={formData.reference}
                     onChange={(e) => setFormData({...formData, reference: e.target.value})}
-                    className="w-full rounded-xl bg-surface-900 border border-white/5 p-3 text-sm text-gray-100 outline-none focus:border-brand-lime/50 transition-colors" 
+                    className="w-full rounded-xl bg-surface-900 border border-white/5 p-3 text-sm text-gray-100 outline-none focus:border-brand-primary/50 transition-colors" 
                   />
                 </div>
               </div>
@@ -160,7 +160,7 @@ export default function CheckoutModal({ isOpen, onClose, tier, userProfile }: Pr
                     placeholder="4242 4242 4242 4242"
                     value={formData.cardNumber}
                     onChange={(e) => setFormData({...formData, cardNumber: e.target.value})}
-                    className="w-full rounded-xl bg-surface-900 border border-white/5 p-3 text-sm text-gray-100 outline-none focus:border-brand-lime/50 transition-colors" 
+                    className="w-full rounded-xl bg-surface-900 border border-white/5 p-3 text-sm text-gray-100 outline-none focus:border-brand-primary/50 transition-colors" 
                   />
                 </div>
                 
@@ -172,7 +172,7 @@ export default function CheckoutModal({ isOpen, onClose, tier, userProfile }: Pr
                       placeholder="MM/AA"
                       value={formData.expiry}
                       onChange={(e) => setFormData({...formData, expiry: e.target.value})}
-                      className="w-full rounded-xl bg-surface-900 border border-white/5 p-3 text-sm text-gray-100 outline-none focus:border-brand-lime/50 transition-colors" 
+                      className="w-full rounded-xl bg-surface-900 border border-white/5 p-3 text-sm text-gray-100 outline-none focus:border-brand-primary/50 transition-colors" 
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -182,7 +182,7 @@ export default function CheckoutModal({ isOpen, onClose, tier, userProfile }: Pr
                       placeholder="123"
                       value={formData.cvc}
                       onChange={(e) => setFormData({...formData, cvc: e.target.value})}
-                      className="w-full rounded-xl bg-surface-900 border border-white/5 p-3 text-sm text-gray-100 outline-none focus:border-brand-lime/50 transition-colors" 
+                      className="w-full rounded-xl bg-surface-900 border border-white/5 p-3 text-sm text-gray-100 outline-none focus:border-brand-primary/50 transition-colors" 
                     />
                   </div>
                 </div>
@@ -192,7 +192,7 @@ export default function CheckoutModal({ isOpen, onClose, tier, userProfile }: Pr
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-4 rounded-xl bg-brand-lime py-4 text-sm font-black text-surface-900 shadow-lg shadow-brand-lime/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+              className="w-full mt-4 rounded-xl bg-brand-primary py-4 text-sm font-black text-white shadow-lg shadow-brand-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
             >
               {loading ? "Procesando..." : method === "pagomovil" ? "Confirmar Pago Móvil" : "Pagar con Tarjeta"}
             </button>

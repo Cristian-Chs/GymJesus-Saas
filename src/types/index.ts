@@ -13,6 +13,8 @@ export interface UserProfile {
   membershipTier?: "basico" | "pro" | "elite";
   cancelAtEnd?: boolean;
   createdAt: Timestamp;
+  customExercises?: ExerciseDay[];
+  customDiet?: DietDay[];
 }
 
 // ─── Payment ──────────────────────────────────────────
@@ -36,6 +38,11 @@ export interface Exercise {
   reps: string;       // e.g. "8-12"
   restSeconds: number;
   notes?: string;
+}
+
+export interface ExerciseDay {
+  day: string;         // e.g. "Lunes"
+  exercises: Exercise[];
 }
 
 export interface DietMeal {
@@ -80,7 +87,7 @@ export interface Plan {
   id: string;
   name: string;
   description: string;
-  exercises: Exercise[];
+  exercises: ExerciseDay[];
   diet: DietDay[];
   createdAt: Timestamp;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { collection, onSnapshot, addDoc, deleteDoc, doc, Timestamp, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { GymEvent } from "@/types";
@@ -56,8 +56,8 @@ export default function AdminGymEvents() {
               type="date"
               required
               value={newDate}
-              onChange={(e) => setNewDate(e.target.value)}
-              className="rounded-lg bg-surface-900 border border-white/10 p-1.5 text-xs text-white outline-none focus:border-brand-lime/50 transition-colors"
+              onChange={(e: any) => setNewDate(e.target.value)}
+              className="rounded-lg bg-surface-900 border border-white/10 p-1.5 text-xs text-white outline-none focus:border-brand-primary/50 transition-colors"
             />
           </div>
           <div className="space-y-1">
@@ -67,8 +67,8 @@ export default function AdminGymEvents() {
               required
               placeholder="Ej. Feriado"
               value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              className="rounded-lg bg-surface-900 border border-white/10 p-1.5 text-xs text-white outline-none focus:border-brand-lime/50 transition-colors"
+              onChange={(e: any) => setNewTitle(e.target.value)}
+              className="rounded-lg bg-surface-900 border border-white/10 p-1.5 text-xs text-white outline-none focus:border-brand-primary/50 transition-colors"
             />
           </div>
           <div className="flex items-center gap-2 pb-2">
@@ -76,8 +76,8 @@ export default function AdminGymEvents() {
               type="checkbox"
               id="isOpenChecked"
               checked={newIsOpen}
-              onChange={(e) => setNewIsOpen(e.target.checked)}
-              className="h-3.5 w-3.5 rounded border-white/10 bg-surface-900 text-brand-lime focus:ring-offset-0 focus:ring-brand-lime"
+              onChange={(e: any) => setNewIsOpen(e.target.checked)}
+              className="h-3.5 w-3.5 rounded border-white/10 bg-surface-900 text-brand-primary focus:ring-offset-0 focus:ring-brand-primary"
             />
             <label htmlFor="isOpenChecked" className="text-[10px] text-gray-400 font-bold uppercase cursor-pointer">
               ¿Abierto?
@@ -85,7 +85,7 @@ export default function AdminGymEvents() {
           </div>
           <button
             type="submit"
-            className="rounded-lg bg-brand-lime px-4 py-1.5 text-xs font-bold text-surface-900 transition-all hover:scale-105 active:scale-95"
+            className="rounded-lg bg-brand-primary px-4 py-1.5 text-xs font-bold text-white transition-all hover:scale-105 active:scale-95"
           >
             Añadir
           </button>
@@ -93,7 +93,7 @@ export default function AdminGymEvents() {
       </div>
 
       <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
-        {events.map((ev) => (
+        {events.map((ev: GymEvent) => (
           <div 
             key={ev.id} 
             className={`relative min-w-[200px] flex-shrink-0 rounded-xl border p-4 transition-all hover:bg-surface-800/80 ${

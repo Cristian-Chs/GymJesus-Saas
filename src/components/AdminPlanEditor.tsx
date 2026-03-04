@@ -41,21 +41,23 @@ export default function AdminPlanEditor() {
   };
 
   // Logic for Exercises
-  const updateExercise = (idx: number, field: string, value: any) => {
+  const updateExercise = (dayIdx: number, exIdx: number, field: string, value: any) => {
     if (!selectedPlan) return;
     const newPlans = [...plans];
     const pIdx = newPlans.findIndex(p => p.id === selectedPlanId);
     const newExercises = [...newPlans[pIdx].exercises];
-    newExercises[idx] = { ...newExercises[idx], [field]: value };
+    const newDayExercises = [...newExercises[dayIdx].exercises];
+    newDayExercises[exIdx] = { ...newDayExercises[exIdx], [field]: value };
+    newExercises[dayIdx] = { ...newExercises[dayIdx], exercises: newDayExercises };
     newPlans[pIdx] = { ...newPlans[pIdx], exercises: newExercises };
     setPlans(newPlans);
   };
 
-  const addExercise = () => {
+  const addExercise = (dayIdx: number) => {
     if (!selectedPlan) return;
     const newPlans = [...plans];
     const pIdx = newPlans.findIndex(p => p.id === selectedPlanId);
-    newPlans[pIdx].exercises.push({
+    newPlans[pIdx].exercises[dayIdx].exercises.push({
       name: "Nuevo Ejercicio",
       sets: 3,
       reps: "12",
@@ -65,11 +67,38 @@ export default function AdminPlanEditor() {
     setPlans(newPlans);
   };
 
-  const removeExercise = (idx: number) => {
+  const removeExercise = (dayIdx: number, exIdx: number) => {
     if (!selectedPlan) return;
     const newPlans = [...plans];
     const pIdx = newPlans.findIndex(p => p.id === selectedPlanId);
-    newPlans[pIdx].exercises.splice(idx, 1);
+    newPlans[pIdx].exercises[dayIdx].exercises.splice(exIdx, 1);
+    setPlans(newPlans);
+  };
+
+  const addExerciseDay = () => {
+    if (!selectedPlan) return;
+    const newPlans = [...plans];
+    const pIdx = newPlans.findIndex(p => p.id === selectedPlanId);
+    newPlans[pIdx].exercises.push({
+      day: "Nuevo Día",
+      exercises: []
+    });
+    setPlans(newPlans);
+  };
+
+  const removeExerciseDay = (dayIdx: number) => {
+    if (!selectedPlan) return;
+    const newPlans = [...plans];
+    const pIdx = newPlans.findIndex(p => p.id === selectedPlanId);
+    newPlans[pIdx].exercises.splice(dayIdx, 1);
+    setPlans(newPlans);
+  };
+
+  const updateExerciseDayName = (dayIdx: number, name: string) => {
+    if (!selectedPlan) return;
+    const newPlans = [...plans];
+    const pIdx = newPlans.findIndex(p => p.id === selectedPlanId);
+    newPlans[pIdx].exercises[dayIdx].day = name;
     setPlans(newPlans);
   };
 
@@ -106,14 +135,14 @@ export default function AdminPlanEditor() {
           <select 
             value={selectedPlanId} 
             onChange={(e) => setSelectedPlanId(e.target.value)}
-            className="rounded-lg bg-surface-800 border border-white/10 px-3 py-2 text-xs text-brand-lime font-black uppercase outline-none focus:border-brand-lime/50"
+            className="rounded-lg bg-surface-800 border border-white/10 px-3 py-2 text-xs text-brand-primary font-black uppercase outline-none focus:border-brand-primary/50"
           >
             {plans.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
           <button
             onClick={handleUpdatePlan}
             disabled={saving}
-            className="rounded-lg bg-brand-lime px-6 py-2 text-xs font-black text-surface-900 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 shadow-glow shadow-brand-lime/20"
+            className="rounded-lg bg-brand-primary px-6 py-2 text-xs font-black text-white transition-all hover:scale-105 active:scale-95 disabled:opacity-50 shadow-glow shadow-brand-primary/20"
           >
             {saving ? "Guardando..." : "Guardar Global"}
           </button>
@@ -124,13 +153,13 @@ export default function AdminPlanEditor() {
       <div className="mb-6 flex gap-2 rounded-xl bg-surface-800 p-1 w-fit">
         <button
           onClick={() => setActiveTab("exercises")}
-          className={`rounded-lg px-4 py-2 text-xs font-bold transition-all ${activeTab === "exercises" ? "bg-surface-600 text-brand-lime shadow-xl" : "text-gray-500 hover:text-gray-300"}`}
+          className={`rounded-lg px-4 py-2 text-xs font-bold transition-all ${activeTab === "exercises" ? "bg-surface-600 text-brand-primary shadow-xl" : "text-gray-500 hover:text-gray-300"}`}
         >
           Rutina de Ejercicios
         </button>
         <button
           onClick={() => setActiveTab("diet")}
-          className={`rounded-lg px-4 py-2 text-xs font-bold transition-all ${activeTab === "diet" ? "bg-surface-600 text-brand-lime shadow-xl" : "text-gray-500 hover:text-gray-300"}`}
+          className={`rounded-lg px-4 py-2 text-xs font-bold transition-all ${activeTab === "diet" ? "bg-surface-600 text-brand-primary shadow-xl" : "text-gray-500 hover:text-gray-300"}`}
         >
           Plan de Alimentación
         </button>
@@ -139,61 +168,86 @@ export default function AdminPlanEditor() {
       {selectedPlan && (
         <div className="max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
           {activeTab === "exercises" ? (
-            <div className="space-y-3">
-              {selectedPlan.exercises.map((ex, idx) => (
-                <div key={idx} className="group relative grid gap-4 grid-cols-1 sm:grid-cols-5 rounded-xl border border-white/5 bg-surface-800/50 p-4 hover:border-brand-lime/30 transition-all">
-                  <div className="sm:col-span-2 space-y-1">
-                    <label className="text-[9px] font-black text-gray-500 uppercase">Nombre / Máquina</label>
+            <div className="space-y-6">
+              {selectedPlan.exercises.map((day, dayIdx) => (
+                <div key={dayIdx} className="space-y-4 rounded-xl border border-white/5 bg-surface-800/50 p-5">
+                  <div className="flex items-center justify-between">
                     <input 
-                      type="text" value={ex.name} onChange={(e) => updateExercise(idx, "name", e.target.value)}
-                      className="w-full rounded bg-surface-900 p-2 text-xs text-white outline-none"
+                      type="text" value={day.day} onChange={(e) => updateExerciseDayName(dayIdx, e.target.value)}
+                      className="bg-transparent text-xs font-black text-brand-primary uppercase tracking-widest outline-none focus:border-b border-brand-primary/30"
                     />
+                    <button
+                      onClick={() => removeExerciseDay(dayIdx)}
+                      className="text-[10px] text-red-500/50 hover:text-red-500 font-bold uppercase"
+                    >
+                      Eliminar Día
+                    </button>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 sm:col-span-2">
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-black text-gray-500 uppercase">Sets</label>
-                      <input 
-                        type="number" value={ex.sets} onChange={(e) => updateExercise(idx, "sets", parseInt(e.target.value))}
-                        className="w-full rounded bg-surface-900 p-2 text-xs text-white outline-none"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-black text-gray-500 uppercase">Reps</label>
-                      <input 
-                        type="text" value={ex.reps} onChange={(e) => updateExercise(idx, "reps", e.target.value)}
-                        className="w-full rounded bg-surface-900 p-2 text-xs text-white outline-none"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-black text-gray-500 uppercase">Descanso(s)</label>
-                      <input 
-                        type="number" value={ex.restSeconds} onChange={(e) => updateExercise(idx, "restSeconds", parseInt(e.target.value))}
-                        className="w-full rounded bg-surface-900 p-2 text-xs text-white outline-none"
-                      />
-                    </div>
+                  
+                  <div className="space-y-3">
+                    {day.exercises.map((ex, exIdx) => (
+                      <div key={exIdx} className="group relative grid gap-4 grid-cols-1 sm:grid-cols-5 rounded-xl border border-white/5 bg-surface-900/50 p-4 hover:border-brand-primary/30 transition-all">
+                        <div className="sm:col-span-2 space-y-1">
+                          <label className="text-[9px] font-black text-gray-500 uppercase">Nombre / Máquina</label>
+                          <input 
+                            type="text" value={ex.name} onChange={(e) => updateExercise(dayIdx, exIdx, "name", e.target.value)}
+                            className="w-full rounded bg-surface-950 p-2 text-xs text-white outline-none"
+                          />
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 sm:col-span-2">
+                          <div className="space-y-1">
+                            <label className="text-[9px] font-black text-gray-500 uppercase">Sets</label>
+                            <input 
+                              type="number" value={ex.sets} onChange={(e) => updateExercise(dayIdx, exIdx, "sets", parseInt(e.target.value))}
+                              className="w-full rounded bg-surface-950 p-2 text-xs text-white outline-none"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[9px] font-black text-gray-500 uppercase">Reps</label>
+                            <input 
+                              type="text" value={ex.reps} onChange={(e) => updateExercise(dayIdx, exIdx, "reps", e.target.value)}
+                              className="w-full rounded bg-surface-950 p-2 text-xs text-white outline-none"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[9px] font-black text-gray-500 uppercase">Descanso(s)</label>
+                            <input 
+                              type="number" value={ex.restSeconds} onChange={(e) => updateExercise(dayIdx, exIdx, "restSeconds", parseInt(e.target.value))}
+                              className="w-full rounded bg-surface-950 p-2 text-xs text-white outline-none"
+                            />
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => removeExercise(dayIdx, exIdx)}
+                          className="absolute -right-2 -top-2 h-6 w-6 items-center justify-center rounded-full bg-red-500/20 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity flex hover:bg-red-500 hover:text-white"
+                        >
+                          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      onClick={() => addExercise(dayIdx)}
+                      className="w-full rounded-xl border border-dashed border-white/5 p-3 text-[10px] font-bold text-gray-600 hover:border-brand-primary/30 hover:text-brand-primary transition-all"
+                    >
+                      + Añadir Ejercicio a {day.day}
+                    </button>
                   </div>
-                  <button
-                    onClick={() => removeExercise(idx)}
-                    className="absolute -right-2 -top-2 h-6 w-6 items-center justify-center rounded-full bg-red-500/20 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity flex hover:bg-red-500 hover:text-white"
-                  >
-                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
                 </div>
               ))}
               <button
-                onClick={addExercise}
-                className="w-full rounded-xl border border-dashed border-white/10 p-4 text-xs font-bold text-gray-500 hover:border-brand-lime/50 hover:text-brand-lime transition-all"
+                onClick={addExerciseDay}
+                className="w-full rounded-xl border border-dashed border-brand-primary/20 p-4 text-xs font-bold text-brand-primary hover:bg-brand-primary/5 transition-all"
               >
-                + Añadir Nuevo Ejercicio
+                + Añadir Nuevo Día de Entrenamiento
               </button>
             </div>
           ) : (
             <div className="space-y-6">
               {selectedPlan.diet.map((day, dIdx) => (
                 <div key={dIdx} className="space-y-4 rounded-xl border border-white/5 bg-surface-800/50 p-5">
-                  <h4 className="text-xs font-black text-brand-lime uppercase tracking-widest">{day.day}</h4>
+                  <h4 className="text-xs font-black text-brand-primary uppercase tracking-widest">{day.day}</h4>
                   <div className="space-y-4">
                     {day.meals.map((meal, mIdx) => (
                       <div key={mIdx} className="grid gap-4 sm:grid-cols-4 items-start border-b border-white/5 pb-4 last:border-0 last:pb-0">

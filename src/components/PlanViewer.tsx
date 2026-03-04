@@ -3,24 +3,38 @@
 import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Plan } from "@/types";
+import { Plan, UserProfile, ExerciseDay, DietDay } from "@/types";
+import { useAuth } from "@/context/AuthContext";
 
 interface Props {
   planId?: string;
 }
 
 export default function PlanViewer({ planId }: Props) {
-  const [plan, setPlan] = useState<Plan | null>(null);
+  const { userProfile } = useAuth();
+  const [plan, setPlan] = useState<Partial<Plan> | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"exercises" | "diet">("exercises");
 
   useEffect(() => {
-    if (!planId) {
-      setLoading(false);
-      return;
-    }
-
     const fetchPlan = async () => {
+      // 1. Check for custom routine on user profile
+      if (userProfile?.customExercises && userProfile.customExercises.length > 0) {
+        setPlan({
+          name: "Tu Rutina Personalizada",
+          exercises: userProfile.customExercises,
+          diet: userProfile.customDiet || []
+        });
+        setLoading(false);
+        return;
+      }
+
+      // 2. Fallback to global plan
+      if (!planId) {
+        setLoading(false);
+        return;
+      }
+
       const snap = await getDoc(doc(db, "plans", planId));
       if (snap.exists()) {
         setPlan({ id: snap.id, ...snap.data() } as Plan);
@@ -29,7 +43,7 @@ export default function PlanViewer({ planId }: Props) {
     };
 
     fetchPlan();
-  }, [planId]);
+  }, [planId, userProfile]);
 
   if (loading) {
     return (
@@ -46,120 +60,103 @@ export default function PlanViewer({ planId }: Props) {
 
   if (!plan) {
     return (
-      <div className="rounded-2xl border border-white/5 bg-surface-700 p-8 text-center">
-        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-surface-800 text-gray-400">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-          </svg>
-        </div>
-        <p className="font-medium text-gray-200">No tienes un plan de entrenamiento asignado</p>
-        <p className="mt-1 text-sm text-gray-500">
-          Selecciona una membresía a continuación o contacta a tu administrador para recibir tu rutina.
-        </p>
+      <div className="rounded-2xl border border-white/5 bg-surface-700 p-8 text-center text-gray-400">
+        <p className="text-xs font-black uppercase tracking-widest text-brand-primary">Sin Plan Asignado</p>
+        <p className="mt-2 text-[10px] uppercase font-bold text-gray-500">Contacta al administrador para recibir tu rutina.</p>
       </div>
     );
   }
 
   return (
     <div className="rounded-2xl border border-white/5 bg-surface-700 p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-sm font-medium tracking-wider text-gray-400 uppercase">
-          {plan.name}
-        </h3>
-        {/* Tab switcher */}
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h3 className="text-xs font-black tracking-widest text-brand-primary uppercase">
+            {plan.name}
+          </h3>
+          {userProfile?.customExercises && userProfile.customExercises.length > 0 && (
+            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-tighter">Modificado por el Administrador</span>
+          )}
+        </div>
         <div className="flex gap-1 rounded-lg bg-surface-800 p-1">
           <button
             onClick={() => setTab("exercises")}
-            className={`rounded-md px-3 py-1.5 text-xs font-medium transition-all ${
-              tab === "exercises"
-                ? "bg-brand-lime text-surface-900"
-                : "text-gray-400 hover:text-gray-200"
+            className={`rounded-md px-3 py-1.5 text-xs font-bold transition-all ${
+              tab === "exercises" ? "bg-brand-primary text-white" : "text-gray-500 hover:text-gray-300"
             }`}
           >
             Ejercicios
           </button>
           <button
             onClick={() => setTab("diet")}
-            className={`rounded-md px-3 py-1.5 text-xs font-medium transition-all ${
-              tab === "diet"
-                ? "bg-brand-lime text-surface-900"
-                : "text-gray-400 hover:text-gray-200"
+            className={`rounded-md px-3 py-1.5 text-xs font-bold transition-all ${
+              tab === "diet" ? "bg-brand-primary text-white" : "text-gray-500 hover:text-gray-300"
             }`}
           >
-            Alimentación
+            Dieta
           </button>
         </div>
       </div>
 
       {tab === "exercises" ? (
-        <div className="space-y-2">
-          {plan.exercises.map((ex, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-between rounded-xl bg-surface-800 px-4 py-3"
-            >
-              <div>
-                <p className="font-medium text-gray-100">{ex.name}</p>
-                {ex.notes && (
-                  <p className="mt-0.5 text-xs text-gray-500">{ex.notes}</p>
-                )}
-              </div>
-              <div className="flex gap-4 text-sm text-gray-400">
-                <span>
-                  <strong className="text-gray-200">{ex.sets}</strong> sets
-                </span>
-                <span>
-                  <strong className="text-gray-200">{ex.reps}</strong> reps
-                </span>
-                <span>
-                  <strong className="text-gray-200">{ex.restSeconds}s</strong>{" "}
-                  descanso
-                </span>
-              </div>
-            </div>
-          ))}
-          {plan.exercises.length === 0 && (
-            <p className="py-4 text-center text-sm text-gray-500">
-              No hay ejercicios asignados.
-            </p>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {plan.diet.map((day, i) => (
-            <div key={i}>
-              <h4 className="mb-2 text-xs font-bold tracking-wider text-brand-lime uppercase">
-                {day.day}
-              </h4>
-              <div className="space-y-1">
-                {day.meals.map((meal, j) => (
-                  <div
-                    key={j}
-                    className="rounded-xl bg-surface-800 px-4 py-3"
-                  >
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-xs text-gray-500">{meal.time}</span>
-                      <span className="font-medium text-gray-200">
-                        {meal.name}
-                      </span>
-                      {meal.calories && (
-                        <span className="ml-auto text-xs text-brand-lime">
-                          {meal.calories} kcal
-                        </span>
-                      )}
+        <div className="space-y-6">
+          {plan.exercises?.map((day, dIdx) => (
+            <div key={dIdx} className="space-y-3">
+              <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] border-l-2 border-brand-primary pl-2">{day.day}</h4>
+              <div className="grid gap-3">
+                {day.exercises.map((ex, i) => (
+                  <div key={i} className="rounded-xl bg-surface-800/50 border border-white/5 px-4 py-3 hover:border-brand-primary/20 transition-all">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                       <div>
+                         <p className="text-sm font-bold text-gray-100">{ex.name}</p>
+                         {ex.notes && <p className="mt-1 text-[10px] text-gray-500 italic">{ex.notes}</p>}
+                       </div>
+                       <div className="flex gap-4 items-center">
+                         <div className="text-center">
+                           <p className="text-[9px] font-black text-gray-500 uppercase tracking-tighter">Sets</p>
+                           <p className="text-sm font-black text-brand-primary">{ex.sets}</p>
+                         </div>
+                         <div className="text-center">
+                           <p className="text-[9px] font-black text-gray-500 uppercase tracking-tighter">Reps</p>
+                           <p className="text-sm font-black text-gray-200">{ex.reps}</p>
+                         </div>
+                         <div className="text-center">
+                           <p className="text-[9px] font-black text-gray-500 uppercase tracking-tighter">Rest</p>
+                           <p className="text-sm font-black text-gray-500">{ex.restSeconds}s</p>
+                         </div>
+                       </div>
                     </div>
-                    <p className="mt-1 text-sm text-gray-400">
-                      {meal.foods.join(", ")}
-                    </p>
                   </div>
                 ))}
               </div>
             </div>
           ))}
-          {plan.diet.length === 0 && (
-            <p className="py-4 text-center text-sm text-gray-500">
-              No hay dieta asignada.
-            </p>
+          {(!plan.exercises || plan.exercises.length === 0) && (
+            <p className="py-10 text-center text-[10px] font-bold text-gray-600 uppercase tracking-widest">No hay ejercicios asignados.</p>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {plan.diet?.map((day, i) => (
+            <div key={i} className="space-y-3">
+               <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] border-l-2 border-brand-primary pl-2">{day.day}</h4>
+               <div className="space-y-2">
+                 {day.meals.map((meal, j) => (
+                   <div key={j} className="rounded-xl bg-surface-800/50 border border-white/5 px-4 py-3">
+                     <div className="flex items-center justify-between mb-1">
+                       <span className="text-[10px] font-black text-brand-primary uppercase">{meal.time}</span>
+                       {meal.calories && <span className="text-[9px] font-bold text-gray-500">{meal.calories} KCAL</span>}
+                     </div>
+                     <p className="text-xs text-gray-300 leading-relaxed font-medium">
+                       {meal.foods.join(", ")}
+                     </p>
+                   </div>
+                 ))}
+               </div>
+            </div>
+          ))}
+          {(!plan.diet || plan.diet.length === 0) && (
+            <p className="py-10 text-center text-[10px] font-bold text-gray-600 uppercase tracking-widest">No hay dieta asignada.</p>
           )}
         </div>
       )}

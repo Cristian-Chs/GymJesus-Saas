@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { collection, onSnapshot, doc, setDoc, Timestamp, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { UserProfile } from "@/types";
@@ -11,6 +11,7 @@ import BcvRate from "@/components/BcvRate";
 import AdminNotifications from "@/components/AdminNotifications";
 import AdminGymEvents from "@/components/AdminGymEvents";
 import AdminPlanEditor from "@/components/AdminPlanEditor";
+import AdminUserRoutineEditor from "@/components/AdminUserRoutineEditor";
 
 export default function AdminDashboard() {
   const { userProfile, authLoading, profileLoading } = useAuth();
@@ -47,9 +48,30 @@ export default function AdminDashboard() {
 
   const initializePlans = async () => {
     const plans = [
-      { id: "plan_basico", name: "Rutina Básica", description: "Enfoque en máquinas y técnica.", exercises: [], diet: [], createdAt: Timestamp.now() },
-      { id: "plan_pro", name: "Rutina Pro", description: "Hipertrofia y fuerza avanzada.", exercises: [], diet: [], createdAt: Timestamp.now() },
-      { id: "plan_elite", name: "Rutina Elite", description: "Alto rendimiento y nutrición.", exercises: [], diet: [], createdAt: Timestamp.now() },
+      { 
+        id: "plan_basico", 
+        name: "Rutina Básica", 
+        description: "Enfoque en máquinas y técnica.", 
+        exercises: [{ day: "Lunes", exercises: [] }], 
+        diet: [{ day: "Lunes", meals: [] }], 
+        createdAt: Timestamp.now() 
+      },
+      { 
+        id: "plan_pro", 
+        name: "Rutina Pro", 
+        description: "Hipertrofia y fuerza avanzada.", 
+        exercises: [{ day: "Lunes", exercises: [] }], 
+        diet: [{ day: "Lunes", meals: [] }], 
+        createdAt: Timestamp.now() 
+      },
+      { 
+        id: "plan_elite", 
+        name: "Rutina Elite", 
+        description: "Alto rendimiento y nutrición.", 
+        exercises: [{ day: "Lunes", exercises: [] }], 
+        diet: [{ day: "Lunes", meals: [] }], 
+        createdAt: Timestamp.now() 
+      },
     ];
 
     try {
@@ -144,8 +166,14 @@ export default function AdminDashboard() {
 
       {/* Full width Plan Editor */}
       <section className="mt-8">
-        <h2 className="mb-4 text-xl font-bold text-white uppercase tracking-widest text-sm opacity-50">Gestión de Planes y Programas</h2>
+        <h2 className="mb-4 text-xl font-bold text-white uppercase tracking-widest text-sm opacity-50">Gestión de Planes Globales</h2>
         <AdminPlanEditor />
+      </section>
+
+      {/* User Routine personalization */}
+      <section className="mt-8 pb-12">
+        <h2 className="mb-4 text-xl font-bold text-white uppercase tracking-widest text-sm opacity-50">Personalización por Usuario</h2>
+        <AdminUserRoutineEditor />
       </section>
     </div>
   );
