@@ -2,20 +2,18 @@
 
 import { useAuth } from "@/context/AuthContext";
 import React, { useEffect, useState } from "react";
-import { collection, onSnapshot, doc, setDoc, Timestamp, query, where } from "firebase/firestore";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { UserProfile } from "@/types";
 import { differenceInDays } from "date-fns";
-import TransactionTable from "@/components/TransactionTable";
 import BcvRate from "@/components/BcvRate";
 import AdminNotifications from "@/components/AdminNotifications";
-import AdminGymEvents from "@/components/AdminGymEvents";
-import AdminPlanEditor from "@/components/AdminPlanEditor";
-import AdminUserRoutineEditor from "@/components/AdminUserRoutineEditor";
-import AdminRecentTransactions from "@/components/AdminRecentTransactions";
-import AdminExpiredUsers from "@/components/AdminExpiredUsers";
+import AdminInicio from "@/components/AdminInicio";
+import AdminTransactionsView from "@/components/AdminTransactionsView";
+import AdminPlansView from "@/components/AdminPlansView";
+import { Bell } from "lucide-react";
 
-export default function AdminDashboard() {
+export default function AdminDashboard({ activeView = "inicio" }: { activeView?: string }) {
   const { userProfile, authLoading, profileLoading } = useAuth();
   const [stats, setStats] = useState({ total: 0, active: 0, pending: 0, verifying: 0 });
 
@@ -23,16 +21,21 @@ export default function AdminDashboard() {
     // 1. Listen to Users
     const unsubscribeUsers = onSnapshot(collection(db, "users"), (uSnap) => {
       const users = uSnap.docs
-        .map((d) => ({ uid: d.id, ...d.data() }) as UserProfile)
+        .map((d) => ({ uid: d.id, ...d.data() } as UserProfile))
         .filter((u) => u.role !== "admin");
 
       // 2. Listen to Pending Payments
       const q = query(collection(db, "payments"), where("status", "==", "pending"));
       const unsubscribePayments = onSnapshot(q, (pSnap) => {
         const verifying = pSnap.size;
-        const active = users.filter(
-          (u) => differenceInDays(u.subscriptionEnd.toDate(), new Date()) >= 0
-        ).length;
+        const active = users.filter((u) => {
+          if (!u.subscriptionEnd) return false;
+          try {
+            return differenceInDays(u.subscriptionEnd.toDate(), new Date()) >= 0;
+          } catch (e) {
+            return false;
+          }
+        }).length;
 
         setStats({
           total: users.length,
@@ -48,48 +51,10 @@ export default function AdminDashboard() {
     return () => unsubscribeUsers();
   }, []);
 
-  const initializePlans = async () => {
-    const plans = [
-      { 
-        id: "plan_basico", 
-        name: "Rutina Básica", 
-        description: "Enfoque en máquinas y técnica.", 
-        exercises: [{ day: "Lunes", exercises: [] }], 
-        diet: [{ day: "Lunes", meals: [] }], 
-        createdAt: Timestamp.now() 
-      },
-      { 
-        id: "plan_pro", 
-        name: "Rutina Pro", 
-        description: "Hipertrofia y fuerza avanzada.", 
-        exercises: [{ day: "Lunes", exercises: [] }], 
-        diet: [{ day: "Lunes", meals: [] }], 
-        createdAt: Timestamp.now() 
-      },
-      { 
-        id: "plan_elite", 
-        name: "Rutina Elite", 
-        description: "Alto rendimiento y nutrición.", 
-        exercises: [{ day: "Lunes", exercises: [] }], 
-        diet: [{ day: "Lunes", meals: [] }], 
-        createdAt: Timestamp.now() 
-      },
-    ];
-
-    try {
-      for (const p of plans) {
-        await setDoc(doc(db, "plans", p.id), p);
-      }
-      alert("Planes inicializados correctamente.");
-    } catch (e) {
-      alert("Error al inicializar planes.");
-    }
-  };
-
   if (authLoading || profileLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-brand-lime border-t-transparent" />
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-brand-primary border-t-transparent shadow-glow shadow-brand-primary/20" />
       </div>
     );
   }
@@ -97,86 +62,40 @@ export default function AdminDashboard() {
   if (!userProfile || userProfile.role !== "admin") return null;
 
   return (
-    <div className="animate-fade-in space-y-8">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col justify-between gap-4 border-b border-white/5 pb-6 sm:flex-row sm:items-end">
+      <div className="flex flex-col justify-between gap-6 border-b border-white/5 pb-8 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-100">
-            Panel de Administración
+          <h1 className="text-3xl font-black text-white uppercase italic tracking-tighter">
+            {activeView === "inicio" ? "Panel de Control" : 
+             activeView === "transacciones" ? "Historial Financiero" : 
+             "Gestor de Entrenamiento"}
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Monitorea suscripciones y gestiona los pagos de tus clientes.
+          <p className="mt-1 text-xs font-medium text-gray-500 uppercase tracking-widest">
+            {activeView === "inicio" ? "Monitorea tu gimnasio en tiempo real" : 
+             activeView === "transacciones" ? "Gestiona membresías y pagos" : 
+             "Diseña rutinas y planes nutricionales"}
           </p>
         </div>
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={initializePlans}
-            className="rounded-lg border border-white/5 bg-surface-800 px-3 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider transition-all hover:bg-surface-700 hover:text-white"
-          >
-            Inicializar Planes
-          </button>
+        <div className="flex items-center gap-4 self-end sm:self-auto">
           <BcvRate />
-          <div className="h-8 w-[1px] bg-white/5 mx-2" />
-          <AdminNotifications />
+          <div className="h-10 w-[1px] bg-white/10 mx-2" />
+          <div className="relative group">
+            <AdminNotifications />
+            <span className="absolute -top-1 -right-1 flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-primary opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-primary"></span>
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Stats cards */}
-      <div className="grid gap-4 sm:grid-cols-4">
-        <div className="card">
-          <p className="text-xs font-medium tracking-wider text-gray-500 uppercase">
-            Total Clientes
-          </p>
-          <p className="mt-2 text-3xl font-bold text-gray-100">{stats.total}</p>
-        </div>
-        <div className="card">
-          <p className="text-xs font-medium tracking-wider text-gray-500 uppercase">
-            Activos
-          </p>
-          <p className="mt-2 text-3xl font-bold text-emerald-400">
-            {stats.active}
-          </p>
-        </div>
-        <div className="card">
-          <p className="text-xs font-medium tracking-wider text-gray-500 uppercase">
-            Expirados
-          </p>
-          <p className="mt-2 text-3xl font-bold text-red-400">
-            {stats.pending}
-          </p>
-        </div>
-        <div className="card border-orange-500/20 bg-orange-500/5">
-          <p className="text-xs font-medium tracking-wider text-orange-500/70 uppercase">
-            Por Verificar
-          </p>
-          <p className="mt-2 text-3xl font-bold text-orange-400">
-            {stats.verifying}
-          </p>
-        </div>
+      {/* View Content */}
+      <div className="min-h-[70vh]">
+        {activeView === "inicio" && <AdminInicio stats={stats} />}
+        {activeView === "transacciones" && <AdminTransactionsView />}
+        {activeView === "planes" && <AdminPlansView />}
       </div>
-
-      {/* Top row: Events management */}
-      <section className="mt-8">
-        <AdminGymEvents />
-      </section>
-
-      {/* Main row: Recent Transaction History */}
-      <section className="mt-8">
-        <h2 className="mb-4 text-xl font-bold text-white uppercase tracking-widest text-sm opacity-50">Transacciones Recientes (Este Mes, Máx 10)</h2>
-        <AdminRecentTransactions />
-      </section>
-
-      {/* Full width Plan Editor */}
-      <section className="mt-8">
-        <h2 className="mb-4 text-xl font-bold text-white uppercase tracking-widest text-sm opacity-50">Gestión de Planes Globales</h2>
-        <AdminPlanEditor />
-      </section>
-
-      {/* User Routine personalization */}
-      <section className="mt-8 pb-12">
-        <h2 className="mb-4 text-xl font-bold text-white uppercase tracking-widest text-sm opacity-50">Personalización por Usuario</h2>
-        <AdminUserRoutineEditor />
-      </section>
     </div>
   );
 }

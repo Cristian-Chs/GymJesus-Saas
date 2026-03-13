@@ -21,6 +21,8 @@ declare namespace React {
   export const useRef: any;
   export const createContext: any;
   export const useContext: any;
+  export const isValidElement: any;
+  export const cloneElement: any;
 }
 
 declare namespace JSX {
