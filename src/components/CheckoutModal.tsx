@@ -70,7 +70,7 @@ export default function CheckoutModal({ isOpen, onClose, tier, userProfile }: Pr
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-surface-900/90 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-md rounded-3xl border border-white/5 bg-surface-800 p-8 shadow-2xl relative overflow-hidden h-[90vh] overflow-y-auto">
+      <div className="w-full max-w-md rounded-3xl border border-white/5 bg-surface-800 p-8 shadow-2xl relative overflow-hidden max-h-[90vh] overflow-y-auto">
         {/* Glow effect */}
         <div className="absolute -top-24 -right-24 h-48 w-48 bg-brand-primary/10 blur-[100px]" />
         
