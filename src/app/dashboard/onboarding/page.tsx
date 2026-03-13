@@ -34,9 +34,18 @@ export default function OnboardingPage() {
 
   if (!userProfile) return null;
 
+  const { isExpired } = getMembershipStatus(userProfile.subscriptionEnd?.toDate());
+
   if (!showPlans) {
     return (
       <div className="mx-auto max-w-3xl pt-12 pb-24 animate-fade-in">
+        {isExpired && (
+          <div className="mb-8 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-center animate-pulse">
+            <p className="text-sm font-bold text-red-400">
+              ⚠️ Tu membresía ha expirado. Por favor, selecciona un plan para renovar tu acceso.
+            </p>
+          </div>
+        )}
         <div className="mb-12 text-center">
           <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-brand-primary/10 mb-6 shadow-glow">
             <svg className="h-10 w-10 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

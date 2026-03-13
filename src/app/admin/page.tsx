@@ -13,6 +13,7 @@ import AdminGymEvents from "@/components/AdminGymEvents";
 import AdminPlanEditor from "@/components/AdminPlanEditor";
 import AdminUserRoutineEditor from "@/components/AdminUserRoutineEditor";
 import AdminRecentTransactions from "@/components/AdminRecentTransactions";
+import AdminExpiredUsers from "@/components/AdminExpiredUsers";
 
 export default function AdminDashboard() {
   const { userProfile, authLoading, profileLoading } = useAuth();
