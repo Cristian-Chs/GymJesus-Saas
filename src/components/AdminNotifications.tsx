@@ -138,6 +138,20 @@ export default function AdminNotifications() {
                     </div>
                   )}
 
+                  {n.receiptUrl && (
+                    <div className="mb-3 rounded-lg overflow-hidden border border-white/5">
+                      <img 
+                        src={n.receiptUrl} 
+                        alt="Capture de pago" 
+                        className="w-full h-auto max-h-48 object-cover cursor-pointer transition-transform hover:scale-105"
+                        onClick={(e: React.MouseEvent) => {
+                          e.stopPropagation();
+                          if (n.receiptUrl) window.open(n.receiptUrl, "_blank");
+                        }}
+                      />
+                    </div>
+                  )}
+
                   {(!n.paymentStatus || n.paymentStatus === "pending") && (
                     <div className="flex gap-2 mt-2">
                       <button
@@ -158,21 +172,45 @@ export default function AdminNotifications() {
                   )}
                   
                   {n.paymentStatus === "completed" && (
-                    <p className="text-[10px] text-emerald-400 mt-1 font-bold flex items-center gap-1">
-                      <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                      </svg>
-                      Pago Aprobado
-                    </p>
+                    <div className="mt-1 flex items-center justify-between">
+                      <p className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+                        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Pago Aprobado
+                      </p>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const message = encodeURIComponent(`Hola ${n.userName}, tu pago de $${n.amount} ha sido aprobado. ¡Gracias por tu reporte! Tu membresía ha sido actualizada.`);
+                          window.open(`https://wa.me/?text=${message}`, "_blank");
+                        }}
+                        className="text-[9px] text-brand-lime hover:underline font-bold uppercase"
+                      >
+                        Avisar WhatsApp
+                      </button>
+                    </div>
                   )}
 
                   {n.paymentStatus === "rejected" && (
-                    <p className="text-[10px] text-red-400 mt-1 font-bold flex items-center gap-1">
-                      <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                      Pago Rechazado
-                    </p>
+                    <div className="mt-1 flex items-center justify-between">
+                      <p className="text-[10px] text-red-400 font-bold flex items-center gap-1">
+                        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Pago Rechazado
+                      </p>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const message = encodeURIComponent(`Hola ${n.userName}, tu reporte de pago por $${n.amount} no ha podido ser validado. Por favor, verifica los datos y vuelve a intentarlo o contáctanos.`);
+                          window.open(`https://wa.me/?text=${message}`, "_blank");
+                        }}
+                        className="text-[9px] text-brand-lime hover:underline font-bold uppercase"
+                      >
+                        Avisar WhatsApp
+                      </button>
+                    </div>
                   )}
                 </div>
               ))

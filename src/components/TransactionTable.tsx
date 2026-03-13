@@ -49,7 +49,7 @@ export default function TransactionTable() {
   }, []);
 
   const extendSubscription = async (uid: string) => {
-    const user = users.find(u => u.uid === uid);
+    const user = users.find((u: UserProfile) => u.uid === uid);
     if (!user) return;
 
     const now = new Date();
@@ -62,8 +62,8 @@ export default function TransactionTable() {
       status: "active",
     });
     
-    setUsers((prev) =>
-      prev.map((u) =>
+    setUsers((prev: UserProfile[]) =>
+      prev.map((u: UserProfile) =>
         u.uid === uid
           ? { ...u, subscriptionEnd: newEnd, status: "active" }
           : u
@@ -72,7 +72,7 @@ export default function TransactionTable() {
   };
 
   const subtractSubscription = async (uid: string) => {
-    const user = users.find(u => u.uid === uid);
+    const user = users.find((u: UserProfile) => u.uid === uid);
     if (!user) return;
 
     const currentEnd = user.subscriptionEnd.toDate();
@@ -82,8 +82,8 @@ export default function TransactionTable() {
       subscriptionEnd: newEnd,
     });
     
-    setUsers((prev) =>
-      prev.map((u) =>
+    setUsers((prev: UserProfile[]) =>
+      prev.map((u: UserProfile) =>
         u.uid === uid
           ? { ...u, subscriptionEnd: newEnd }
           : u
@@ -97,7 +97,7 @@ export default function TransactionTable() {
     return differenceInDays(end, new Date()) >= 0 ? "paid" : "expired";
   };
 
-  const filtered = users.filter((u) => {
+  const filtered = users.filter((u: UserProfile) => {
     if (u.role === "admin") return false;
     if (filter === "all") return true;
     return getStatus(u) === filter;
@@ -145,7 +145,7 @@ export default function TransactionTable() {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
-            {filtered.map((u) => {
+            {filtered.map((u: UserProfile) => {
               const status = getStatus(u);
               const end = u.subscriptionEnd.toDate();
               return (
@@ -196,6 +196,20 @@ export default function TransactionTable() {
                         >
                           +1 Mes
                         </button>
+                        <button
+                          onClick={() => {
+                            const cleanPhone = u.phoneNumber?.replace(/\D/g, "");
+                            const message = encodeURIComponent(`Hola ${u.displayName || "Usuario"}, te escribimos de PowerGym para recordarte que tu membresía está por vencer o ya ha vencido. ¡Esperamos verte pronto!`);
+                            window.open(`https://wa.me/${cleanPhone}?text=${message}`, "_blank");
+                          }}
+                          disabled={!u.phoneNumber}
+                          className="rounded-lg bg-green-500/10 px-3 py-1.5 text-xs font-semibold text-green-400 transition-all hover:bg-green-500/20 disabled:opacity-30 disabled:cursor-not-allowed"
+                          title={u.phoneNumber ? "Notificar por WhatsApp" : "Sin número registrado"}
+                        >
+                          <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.399-4.397 9.831-9.797 9.831m8.532-18.362A11.861 11.861 0 0012.059 0C5.449 0 .062 5.388.059 11.998c0 2.113.543 4.176 1.579 6.02L0 24l6.146-1.612a11.827 11.827 0 005.908 1.569h.005c6.608 0 11.995-5.388 11.998-11.998a11.817 11.817 0 00-3.518-8.483"/>
+                          </svg>
+                        </button>
                       </div>
                     )}
                   </td>
@@ -221,25 +235,25 @@ export default function TransactionTable() {
         <span>
           Total:{" "}
           <strong className="text-gray-300">
-            {users.filter((u) => u.role !== "admin").length}
+            {users.filter((u: UserProfile) => u.role !== "admin").length}
           </strong>
         </span>
         <span>
           Pagados:{" "}
           <strong className="text-emerald-400">
-            {users.filter((u) => u.role !== "admin" && getStatus(u) === "paid").length}
+            {users.filter((u: UserProfile) => u.role !== "admin" && getStatus(u) === "paid").length}
           </strong>
         </span>
         <span>
           Expirados:{" "}
           <strong className="text-red-400">
-            {users.filter((u) => u.role !== "admin" && getStatus(u) === "expired").length}
+            {users.filter((u: UserProfile) => u.role !== "admin" && getStatus(u) === "expired").length}
           </strong>
         </span>
         <span>
           Por Verificar:{" "}
           <strong className="text-orange-400">
-            {users.filter((u) => u.role !== "admin" && getStatus(u) === "verifying").length}
+            {users.filter((u: UserProfile) => u.role !== "admin" && getStatus(u) === "verifying").length}
           </strong>
         </span>
       </div>

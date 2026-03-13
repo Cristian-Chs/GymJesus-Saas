@@ -30,6 +30,7 @@ export interface Payment {
   status: "pending" | "completed" | "rejected";
   tier?: string;
   planId?: string;
+  receiptUrl?: string;
 }
 
 // ─── Plan ─────────────────────────────────────────────
@@ -74,6 +75,7 @@ export interface AdminNotification {
   details?: string;
   paymentId?: string;
   paymentStatus?: "pending" | "completed" | "rejected";
+  receiptUrl?: string;
 }
 
 export interface GymEvent {

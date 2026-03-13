@@ -18,7 +18,8 @@ export async function processPayment(
   amount: number,
   method: string = "card",
   details: string = "",
-  planId: string = ""
+  planId: string = "",
+  receiptUrl: string = ""
 ) {
   try {
     const paymentRef = doc(collection(db, "payments"));
@@ -33,7 +34,8 @@ export async function processPayment(
       date: Timestamp.now(),
       method: method,
       details: details,
-      status: "pending"
+      status: "pending",
+      receiptUrl: receiptUrl
     };
 
     const notificationData = {
@@ -49,7 +51,8 @@ export async function processPayment(
       type: "payment_pending",
       method: method,
       details: details,
-      paymentStatus: "pending" as const
+      paymentStatus: "pending" as const,
+      receiptUrl: receiptUrl
     };
 
     await runTransaction(db, async (transaction) => {

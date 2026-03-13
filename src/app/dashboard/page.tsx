@@ -7,13 +7,19 @@ import ExpirationBanner from "@/components/ExpirationBanner";
 import PaymentCalendar from "@/components/PaymentCalendar";
 import PlanViewer from "@/components/PlanViewer";
 
+import { getMembershipStatus } from "@/lib/membership";
+
 export default function ClientDashboard() {
   const { userProfile, authLoading, profileLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (userProfile && (!userProfile.planId || userProfile.status !== "active")) {
-      router.replace("/dashboard/onboarding");
+    if (userProfile) {
+      const { isFullyExpired } = getMembershipStatus(userProfile.subscriptionEnd.toDate());
+      
+      if (!userProfile.planId || userProfile.status !== "active" || isFullyExpired) {
+        router.replace("/dashboard/onboarding");
+      }
     }
   }, [userProfile, router]);
 
