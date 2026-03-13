@@ -8,10 +8,9 @@ import {
   Menu, 
   X 
 } from "./Icons";
+import { useAdmin } from "@/context/AdminContext";
 
 interface SidebarProps {
-  activeView: string;
-  setActiveView: (view: any) => void;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }
@@ -22,7 +21,8 @@ const navItems = [
   { id: "planes", label: "Gestión de Planes", icon: ClipboardList },
 ];
 
-export default function AdminSidebar({ activeView, setActiveView, isOpen, setIsOpen }: SidebarProps) {
+export default function AdminSidebar({ isOpen, setIsOpen }: SidebarProps) {
+  const { activeView, setActiveView } = useAdmin();
   return (
     <>
       {/* Mobile Backdrop */}

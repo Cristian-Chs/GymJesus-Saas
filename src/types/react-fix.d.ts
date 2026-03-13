@@ -19,8 +19,8 @@ declare namespace React {
   export const useMemo: any;
   export const useCallback: any;
   export const useRef: any;
-  export const createContext: any;
-  export const useContext: any;
+  export const createContext: <T>(defaultValue: T) => any;
+  export const useContext: <T>(context: any) => T;
   export const isValidElement: any;
   export const cloneElement: any;
 }

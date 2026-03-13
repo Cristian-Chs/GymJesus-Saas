@@ -12,8 +12,10 @@ import AdminInicio from "@/components/AdminInicio";
 import AdminTransactionsView from "@/components/AdminTransactionsView";
 import AdminPlansView from "@/components/AdminPlansView";
 import { Bell } from "@/components/Icons";
+import { useAdmin } from "@/context/AdminContext";
 
-export default function AdminDashboard({ activeView = "inicio" }: { activeView?: string }) {
+export default function AdminDashboard() {
+  const { activeView } = useAdmin();
   const { userProfile, authLoading, profileLoading } = useAuth();
   const [stats, setStats] = useState({ total: 0, active: 0, pending: 0, verifying: 0 });
 
