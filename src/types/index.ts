@@ -13,6 +13,7 @@ export interface UserProfile {
   membershipTier?: "basico" | "pro" | "elite";
   cancelAtEnd?: boolean;
   createdAt: Timestamp;
+  phoneNumber?: string;
   customExercises?: ExerciseDay[];
   customDiet?: DietDay[];
 }
