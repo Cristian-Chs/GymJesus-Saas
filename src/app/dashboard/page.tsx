@@ -16,9 +16,9 @@ export default function ClientDashboard() {
 
   useEffect(() => {
     if (userProfile && !authLoading && !profileLoading) {
-      const { isFullyExpired } = getMembershipStatus(userProfile.subscriptionEnd.toDate());
+      const { isExpired } = getMembershipStatus(userProfile.subscriptionEnd?.toDate());
       
-      if (!userProfile.planId || userProfile.status !== "active" || isFullyExpired) {
+      if (!userProfile.planId || userProfile.status !== "active" || isExpired) {
         setRedirecting(true);
         router.replace("/dashboard/onboarding");
       }

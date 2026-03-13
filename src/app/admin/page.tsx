@@ -12,6 +12,7 @@ import AdminNotifications from "@/components/AdminNotifications";
 import AdminGymEvents from "@/components/AdminGymEvents";
 import AdminPlanEditor from "@/components/AdminPlanEditor";
 import AdminUserRoutineEditor from "@/components/AdminUserRoutineEditor";
+import AdminRecentTransactions from "@/components/AdminRecentTransactions";
 
 export default function AdminDashboard() {
   const { userProfile, authLoading, profileLoading } = useAuth();
@@ -158,10 +159,10 @@ export default function AdminDashboard() {
         <AdminGymEvents />
       </section>
 
-      {/* Main row: Transaction table */}
+      {/* Main row: Recent Transaction History */}
       <section className="mt-8">
-        <h2 className="mb-4 text-xl font-bold text-white uppercase tracking-widest text-sm opacity-50">Monitor de Transacciones</h2>
-        <TransactionTable />
+        <h2 className="mb-4 text-xl font-bold text-white uppercase tracking-widest text-sm opacity-50">Transacciones Recientes (Este Mes, Máx 10)</h2>
+        <AdminRecentTransactions />
       </section>
 
       {/* Full width Plan Editor */}

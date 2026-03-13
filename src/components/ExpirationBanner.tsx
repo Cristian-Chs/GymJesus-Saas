@@ -11,31 +11,27 @@ interface Props {
 export default function ExpirationBanner({ subscriptionEnd }: Props) {
   const today = new Date();
   const daysLeft = differenceInDays(subscriptionEnd, today);
-  const { isExpired, isGracePeriod, remainingGraceHours } = getMembershipStatus(subscriptionEnd);
+  const { isExpired } = getMembershipStatus(subscriptionEnd);
   const isUrgent = daysLeft >= 0 && daysLeft < 5;
 
   return (
     <div
       className={`relative overflow-hidden rounded-2xl border p-6 transition-all ${
-        isGracePeriod
-          ? "border-orange-500/40 bg-orange-950/30 shadow-[0_0_20px_rgba(249,115,22,0.15)]"
-          : isExpired
-            ? "border-red-500/40 bg-red-950/30"
-            : isUrgent
-              ? "border-amber-500/40 bg-amber-950/30"
-              : "border-brand-primary/20 bg-surface-700"
+        isExpired
+          ? "border-red-500/40 bg-red-950/30"
+          : isUrgent
+            ? "border-amber-500/40 bg-amber-950/30"
+            : "border-brand-primary/20 bg-surface-700"
       }`}
     >
       {/* Glow accent */}
       <div
         className={`pointer-events-none absolute -top-20 -right-20 h-40 w-40 rounded-full blur-3xl ${
-          isGracePeriod
-            ? "bg-orange-500/20"
-            : isExpired
-              ? "bg-red-500/20"
-              : isUrgent
-                ? "bg-amber-500/20"
-                : "bg-brand-primary/10"
+          isExpired
+            ? "bg-red-500/20"
+            : isUrgent
+              ? "bg-amber-500/20"
+              : "bg-brand-primary/10"
         }`}
       />
 
@@ -45,14 +41,7 @@ export default function ExpirationBanner({ subscriptionEnd }: Props) {
             Suscripción
           </h3>
 
-          {isGracePeriod ? (
-            <>
-              <p className="mt-1 text-2xl font-bold text-orange-400 animate-pulse">Plazo de Gracia</p>
-              <p className="mt-1 text-sm text-orange-200/70">
-                Tu membresía venció. Tienes <span className="text-white font-bold">{remainingGraceHours} horas</span> para pagar antes de perder acceso.
-              </p>
-            </>
-          ) : isExpired ? (
+          {isExpired ? (
             <>
               <p className="mt-1 text-2xl font-bold text-red-400">Expirada</p>
               <p className="mt-1 text-sm text-red-300/70">

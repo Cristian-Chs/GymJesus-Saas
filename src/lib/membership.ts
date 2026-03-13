@@ -1,11 +1,6 @@
-import { addDays, differenceInHours, isAfter } from 'date-fns';
-
 export interface MembershipStatus {
   isActive: boolean;
   isExpired: boolean;
-  isGracePeriod: boolean;
-  isFullyExpired: boolean;
-  remainingGraceHours: number;
 }
 
 export const getMembershipStatus = (subscriptionEnd: Date | null | undefined): MembershipStatus => {
@@ -13,35 +8,18 @@ export const getMembershipStatus = (subscriptionEnd: Date | null | undefined): M
     return {
       isActive: false,
       isExpired: true,
-      isGracePeriod: false,
-      isFullyExpired: true,
-      remainingGraceHours: 0
     };
   }
 
   const now = new Date();
-  const graceEnd = addDays(subscriptionEnd, 2);
-  const isExpired = isAfter(now, subscriptionEnd);
+  const endDate = new Date(subscriptionEnd);
   
-  // Is in grace period if it's expired BUT still before or at 2 days after expiration
-  const isGracePeriod = isExpired && !isAfter(now, graceEnd);
-  
-  // Is fully expired if it's past the 2-day grace period
-  const isFullyExpired = isAfter(now, graceEnd);
-  
-  // Active means either NOT expired OR in grace period
-  const isActive = !isExpired || isGracePeriod;
-
-  let remainingGraceHours = 0;
-  if (isGracePeriod) {
-    remainingGraceHours = Math.max(0, differenceInHours(graceEnd, now));
-  }
+  // Membership is active if now is BEFORE the end date
+  const isActive = now < endDate;
+  const isExpired = !isActive;
 
   return {
     isActive,
     isExpired,
-    isGracePeriod,
-    isFullyExpired,
-    remainingGraceHours
   };
 };

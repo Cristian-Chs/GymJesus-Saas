@@ -14,10 +14,10 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     if (userProfile && !authLoading && !profileLoading) {
-      const { isFullyExpired } = getMembershipStatus(userProfile.subscriptionEnd.toDate());
+      const { isExpired } = getMembershipStatus(userProfile.subscriptionEnd?.toDate());
       
-      // Si ya tiene un plan activo y NO está totalmente expirado, mandarlo al dashboard
-      if (userProfile.planId && userProfile.status === "active" && !isFullyExpired) {
+      // Si ya tiene un plan activo y NO está expirado, mandarlo al dashboard
+      if (userProfile.planId && userProfile.status === "active" && !isExpired) {
         setRedirecting(true);
         router.replace("/dashboard");
       }
